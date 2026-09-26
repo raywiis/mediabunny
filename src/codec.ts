@@ -49,6 +49,7 @@ export const VIDEO_CODECS = [
 	'av1',
 	'vp8',
 	'prores',
+	'mjpeg',
 ] as const;
 /**
  * List of known PCM (uncompressed) audio codecs, ordered by encoding preference.
@@ -245,6 +246,14 @@ export const DTS_FOURCCS = [
 ] as const;
 export type DtsFourCc = typeof DTS_FOURCCS[number];
 
+export const MJPEG_FOURCCS = [
+	'mjpa',
+	'mjpb',
+	'jpeg',
+	'mjpg',
+] as const;
+export type MjpegFourCc = typeof MJPEG_FOURCCS[number];
+
 // Target data rates of the ProRes profiles at 1920x1080 ~30fps, as published by Apple
 const PRORES_PROFILE_TARGET_BITRATES: { fourCc: ProresFourCc; bitrate: number; alpha: boolean }[] = [
 	{ fourCc: 'apco', bitrate: 45_000_000, alpha: false }, // 422 Proxy
@@ -337,6 +346,8 @@ export const buildVideoCodecString = (
 		}
 
 		return bestFourCc;
+	} else if (codec === 'mjpeg') {
+		return 'mjpeg';
 	} else {
 		assertNever(codec);
 	}
@@ -580,6 +591,8 @@ export const extractVideoCodecString = (trackInfo: {
 		return string;
 	} else if (codec === 'prores') {
 		return proresFormat ?? 'apch';
+	} else if (codec === 'mjpeg') {
+		return 'mjpeg';
 	} else if (codec !== null) {
 		assertNever(codec);
 	}
@@ -882,6 +895,8 @@ export const inferCodecFromCodecString = (codecString: string): MediaCodec | nul
 		return 'av1';
 	} else if ((PRORES_FOURCCS as readonly string[]).includes(codecString)) {
 		return 'prores';
+	} else if ((MJPEG_FOURCCS as readonly string[]).includes(codecString)) {
+		return 'mjpeg';
 	}
 
 	// Audio codecs
